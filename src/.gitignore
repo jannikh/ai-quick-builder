@@ -1,5 +1,2 @@
 test.py
-__pycache__/**
-.vscode
-settings.json
 example.ipynb
