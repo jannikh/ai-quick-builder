@@ -2,6 +2,10 @@
 
 This lightweight Python module is a versatile tool for integrating AI language models into conversational applications, featuring customizable prompts, dynamic output types, efficient caching, and context-aware chat capabilities. Based on langchain.
 
+<p align="center">
+    <img src="assets\readme-cover-img.png" alt="The image representing the essence of your repository with everyday AutoHotkey shortcuts is ready. It visually captures the dynamic and efficient workspace empowered by the various functionalities of your scripts. Feel free to take a look at it above." width="80%" style="max-width: 420px; border-radius: 15px"/>
+</p>
+
 ## Features
 
 Key features include:
