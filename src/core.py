@@ -4,17 +4,18 @@ import openai
 import json
 import sys
 from copy import deepcopy
-from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI, OpenAI
+from langchain.prompts import ChatPromptTemplate, PromptTemplate
 from langchain.chains import LLMChain, SequentialChain
 from langchain.output_parsers import PydanticOutputParser, OutputFixingParser
 from langchain.schema import BaseOutputParser, OutputParserException
 from langchain.schema.output_parser import StrOutputParser
 from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
 from langchain.schema.runnable import RunnableMap, RunnablePassthrough, RunnableParallel, RunnableBranch
+from langchain_community.utilities.dalle_image_generator import DallEAPIWrapper
 from pydantic import BaseModel, Field, validator, ValidationError
 from typing import List
-
+from openai import OpenAI
 
 # an AI class that takes in the following optional parameters:
 # As soon as there is a prompt, the AI will be invoked and the result will be returned
@@ -112,6 +113,29 @@ class AI:
 		parameters = ", ".join([f"{key}={self.variables[key]}" for key in self.variables])
 		return f"AI({parameters})"
 
+	# Returns the URL of the generated image
+	def generate_image(self, prompt, raw=False):
+		if not raw:
+			llm = ChatOpenAI(temperature=self.variables['temperature'], model=self.variables['model'])
+			img_prompt = PromptTemplate(
+				input_variables=["image_desc"],
+				template="Generate a detailed, concise and information-dense prompt of max. 800 characters to generate an image based on the following description: {image_desc}",
+			)
+			ai_chain = LLMChain(llm=llm, prompt=img_prompt) | (lambda x: x['text'])
+			prompt = ai_chain.invoke(prompt)
+		
+		# url = DallEAPIWrapper().run(prompt)
+		client = OpenAI()
+		response = client.images.generate(
+			model="dall-e-3",
+			prompt=prompt,
+			size="1024x1024",
+			quality="standard",
+			n=1,
+		)
+		url = response.data[0].url
+		return url
+
 	# Invoking and executing the actual AI call. That's what we're here for, that's the heavy lifting.
 	def invoke(self, prompt:str=None, **kwargs):
 		# The invoke method accepts keyword arguments and ensures all keys in self.variables have a value, using default values from self.variables if not provided.
@@ -159,10 +183,31 @@ class AI:
 
 		ai_chain = ChatPromptTemplate.from_template(full_prompt)
 
-		if output is str:
+		# Use this anywhere in the chains to easily view the current state of the variables being passed through at that point
+		def debug_print(x):
+			print(f"\n{x}\n")
+			return(x)
+		
+		# Image generation
+		if type(output) is str and output.lower() in ['image', 'img', 'i', 'picture', 'pic', 'p']:
+			image_generation = True
+			raw = False
+		elif type(output) is str and output.lower().replace(' ', '') in ['imageraw', 'imgraw', 'iraw', 'pictureraw', 'picraw', 'praw']:
+			image_generation = True
+			raw = True
+		else:
+			image_generation = False
+		
+		if image_generation:
+			pass
+		
+		# Simple string output
+		elif output is str:
 			ai_chain |= llm
 			ai_chain |= StrOutputParser()
-		else:
+		
+		# Any other output type, formatted as OpenAI function call
+		elif type(output) is type:
 			response_description = ''
 			# response_description = prompt # Disabled because it would just appear twice
 			if output == int:
@@ -179,6 +224,8 @@ class AI:
 					"key": function_str(""),
 					"value": function_str(""),
 				}, ["key", "value"]))
+			else:
+				raise NotImplementedError(f"Output type {output} is not implemented yet.")
 
 			output_structure = create_function_call(
 				"Response",
@@ -193,18 +240,20 @@ class AI:
 
 			if output == dict:
 				ai_chain |= (lambda dict_list: {item['key']: item['value'] for item in dict_list})
-		
-		# Use this anywhere in the chains to easily view the current state of the variables being passed through at that point
-		def debug_print(x):
-			print(f"\n{x}\n")
-			return(x)
-		
-		result = ai_chain.invoke(prompt_args, {'tags': kwargs['tags'], 'metadata': kwargs['metadata']})
 
-		if 'cast_to_preffered_type' in kwargs and kwargs['cast_to_preffered_type']:
-			result = output(result)
-		if not 'cast_to_preffered_type' in kwargs and AUTO_CAST_TO_PREFERRED_TYPE:
-			result = output(result)
+		# Fallback:
+		else:
+			raise ValueError(f"Output type {output} is invalid. Please define a valid output type")
+
+		if image_generation:
+			result = self.generate_image(prompt, raw)
+		else:
+			result = ai_chain.invoke(prompt_args, {'tags': kwargs['tags'], 'metadata': kwargs['metadata']})
+
+			if 'cast_to_preffered_type' in kwargs and kwargs['cast_to_preffered_type']:
+				result = output(result)
+			if not 'cast_to_preffered_type' in kwargs and AUTO_CAST_TO_PREFERRED_TYPE:
+				result = output(result)
 
 		# Store in instance-history and in cache
 		self.results.append((deepcopy(kwargs) | {'full_prompt': full_prompt}, result))
@@ -323,6 +372,21 @@ class AI:
 	def __ne__(self, other): return AI.make_numeric(self) != AI.make_numeric(other)
 	def __ge__(self, other): return AI.make_numeric(self) >= AI.make_numeric(other)
 	def __gt__(self, other): return AI.make_numeric(self) > AI.make_numeric(other)
+
+	def toimage(self, **kwargs):
+		if type(self) is str:
+			self = AI(**kwargs | {'prompt': self})
+		self.variables |= kwargs
+		return self.result('image')
+
+	def image(self, **kwargs):
+		return self.toimage(**kwargs)
+	
+	def toimg(self, **kwargs):
+		return self.toimage(**kwargs)
+
+	def img(self, **kwargs):
+		return self.toimage(**kwargs)
 
 	
 	# This will enable LANGCHAIN_TRACING_V2 and LANGCHAIN_ENDPOINT if not set differently in environment variables
@@ -449,7 +513,7 @@ def replace_placeholders(text, replacements, default=None):
 	# Replace each placeholder with the corresponding value from the replacements dictionary
 	for placeholder in placeholders:
 		if placeholder in replacements:
-			text = text.replace('{' + placeholder + '}', replacements[placeholder])
+			text = text.replace('{' + placeholder + '}', str(replacements[placeholder]))
 		elif default is not None:
 			text = text.replace('{' + placeholder + '}', default)
 		else:

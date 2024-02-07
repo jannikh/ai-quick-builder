@@ -3,7 +3,6 @@ from src.core import AI
 # Simply create an AI object and ask it questions with a prompt
 print(AI("What is the capital of France?"))
 
-
 # Use f-strings to ask questions with variables
 country = "Belgium"
 belgians = AI(f"In {country}, about how many people live there?")
@@ -14,10 +13,17 @@ print(f"There are {belgians(output=int)} people in {country}.")
 print(AI("How many lbs in a kg?", output=int))
 print(AI("How many lbs in a kg?", output=float))
 
+# You can also generate images. It will return a URL to the image, that you can open or download
+print(AI("a very tasty cake shaped like the eiffel tower", output='image'))
+# This prompt automatically gets improved by ChatGPT before generating an image using DALL-E 3.
+# The improved image description prompt was:
+# Create a visually enticing image of a delectable cake artfully designed in the shape of the iconic Eiffel Tower. Render the cake with luscious layers of moist sponge, adorned with smooth buttercream frosting, delicately sculpted to mimic the intricate lattice of the tower's ironwork. Enhance the cake's visual appeal by incorporating edible embellishments, such as shimmering fondant accents, metallic edible gold paint, and miniature macarons adorning the cake's "observation decks." Surround the cake with a picturesque scene, showcasing a charming Parisian backdrop, with the tower standing tall against a romantic sunset sky. Capture the essence of this mouthwatering creation by incorporating rich, vibrant colors, emphasizing the tower's signature bronze hue, and highlighting the cake's irresistible textures.
+# To disable this improvement, use output="image raw"
+
 
 # Magical automatic type detection based on how you use the object
-print(AI("bakers dozen") * AI("How many lbs does a cake weigh?"))
-if AI("Is a cake heavier than a banana?"):
+print(AI("bakers dozen") * AI("How many lbs does a cake weigh?")) # number detection
+if AI("Is a cake heavier than a banana?"): # asks dicrectly for a boolean value
 	print("Yes, a cake is heavier than a banana.")
 
 

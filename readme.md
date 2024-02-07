@@ -71,14 +71,34 @@ There are 11589623 people in Belgium.
 2.20462
 ```
 
+## Image generation
+You can also generate images. It will return a URL to the image, that you can open or download
+
+```python
+print(AI("a very tasty cake shaped like the eiffel tower", output='image'))
+```
+
+Result
+<!-- <p style="display: flex;"> -->
+<img src="assets\eiffel-cake.png" alt="a very tasty cake shaped like the eiffel tower" style="width: 50%; max-width: 360px; margin-right: 20px;"/>
+<!-- <div style=""> -->
+
+This prompt automatically gets enhanced by ChatGPT before generating an image using DALL-E 3.  
+The improved image description prompt was *"Create a visually enticing image of a delectable cake artfully designed in the shape of the iconic Eiffel Tower. Render the cake with luscious layers of moist sponge, adorned with smooth buttercream frosting, delicately sculpted to mimic the intricate lattice of the tower's ironwork. Enhance the cake's visual appeal by incorporating edible embellishments, such as shimmering fondant accents, metallic edible gold paint, and miniature macarons adorning the cake's "observation decks." Surround the cake with a picturesque scene, showcasing a charming Parisian backdrop, with the tower standing tall against a romantic sunset sky. Capture the essence of this mouthwatering creation by incorporating rich, vibrant colors, emphasizing the tower's signature bronze hue, and highlighting the cake's irresistible textures"*  
+To disable this automatic prompt enhancement, use ```output="image raw"```
+
+<!-- </div> -->
+<!-- </p> -->
+
+
 ## Automatic Type Detection and Arithmetic Operations
 #### Magical automatic type detection based on how you use the object
 ```python
 print(AI("bakers dozen") * AI("How many lbs does a cake weigh?"))
 if AI("Is a cake heavier than a banana?"):
     print("Yes, a cake is heavier than a banana.")
-
 ```
+
 Result
 ```
 26.0
@@ -113,6 +133,7 @@ print(india(output=str))
 
 print(population_of("India"))
 ```
+
 Result
 ```
 Wow! India is a big country!
@@ -171,6 +192,7 @@ Pickles is not vegetarian
 Ketchup is vegetarian
 Mustard is vegetarian
 Mayonnaise is not vegetarian
+...
 ```
 
 
