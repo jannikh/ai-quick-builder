@@ -51,11 +51,11 @@ print(population_of("India"))
 def analyze(food):
 	print(f"\nAnalyzing {food}:")
 	for ingredient in AI(f"ingredients of {food}"):
-		if AI(f"is {ingredient} vegetarian"):
-			vegetarian_status = "vegetarian"
+		if AI(f"is {ingredient} vegan?"):
+			vegan_status = "vegan"
 		else:
-			vegetarian_status = "not vegetarian"
-		print(ingredient + " is " + vegetarian_status)
+			vegan_status = "not vegan"
+		print(ingredient + " is " + vegan_status)
 analyze("Hamburgers")
 
 
