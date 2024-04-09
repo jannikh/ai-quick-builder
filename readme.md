@@ -3,7 +3,7 @@
 This lightweight Python module is a versatile tool for integrating AI language models into conversational applications, featuring customizable prompts, dynamic output types, efficient caching, and context-aware chat capabilities. Based on langchain.
 
 <p align="center">
-    <img src="assets\readme-cover-img.png" alt="The image representing the essence of your repository with everyday AutoHotkey shortcuts is ready. It visually captures the dynamic and efficient workspace empowered by the various functionalities of your scripts. Feel free to take a look at it above." width="80%" style="max-width: 420px; border-radius: 15px"/>
+    <img src="assets\readme-cover-img.png" alt="The image representing the essence of the repository for the AI quick builder. It visually captures the dynamic and efficient functionality." width="80%" style="max-width: 420px; border-radius: 15px"/>
 </p>
 
 ## Features
@@ -40,13 +40,12 @@ print(AI("What is the capital of France?"))
 Result:
 ```
 The capital of France is Paris.
-Using Variables in Prompts
-python
-Copy code
 ```
 
-### Use f-strings to ask questions with variables
+## Using Variables in Prompts
+
 ```python
+# Use f-strings to ask questions with variables
 country = "Belgium"
 belgians = AI(f"In {country}, about how many people live there?")
 print(belgians)
@@ -148,10 +147,10 @@ As of August 2021, the estimated population of India is approximately 1.366 bill
 def analyze(food):
     print(f"\nAnalyzing {food}:")
     for ingredient in AI(f"ingredients of {food}?"):
-        if AI(f"is {ingredient} vegetarian"):
-            vegetarian_status = "vegetarian"
+        if AI(f"is {ingredient} vegan?"):
+            vegan_status = "vegan"
         else:
-            vegetarian_status = "not vegetarian"
+            vegan_status = "not vegan"
         print(ingredient + " is " + vegetarian_status)
 analyze("Hamburgers")
 ```
@@ -159,16 +158,16 @@ analyze("Hamburgers")
 Result:
 ```
 Analyzing Hamburgers:
-Ground beef is not vegetarian
-Buns is not vegetarian
-Lettuce is vegetarian
-Tomato is vegetarian
-Onion is vegetarian
-Cheese is vegetarian
-Pickles is not vegetarian
-Ketchup is vegetarian
-Mustard is vegetarian
-Mayonnaise is not vegetarian
+Ground beef is not vegan
+Buns is not vegan
+Lettuce is vegan
+Tomato is vegan
+Onion is vegan
+Cheese is not vegan
+Pickles is vegan
+Ketchup is vegan
+Mustard is vegan
+Mayonnaise is not vegan
 ```
 
 ## Caching for Efficiency
@@ -182,16 +181,17 @@ analyze("Cheeseburgers")
 Repeated Result:
 ```
 Analyzing Cheeseburgers:
-Ground beef is not vegetarian
-Cheese is vegetarian
-Buns is not vegetarian
-Lettuce is vegetarian
-Tomato is vegetarian
-Onion is vegetarian
-Pickles is not vegetarian
-Ketchup is vegetarian
-Mustard is vegetarian
-Mayonnaise is not vegetarian
+Ground beef is not vegan
+Buns is not vegan
+Lettuce is vegan
+Tomato is vegan
+Onion is vegan
+Cheese is not vegan
+Pickles is vegan
+Ketchup is vegan
+Mustard is vegan
+Mayonnaise is not vegan
+
 ...
 ```
 
